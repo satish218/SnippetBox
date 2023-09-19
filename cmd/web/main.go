@@ -2,41 +2,33 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 )
 
-func main() {
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
 
-	// using the command line flags
-	// Define a new command-line flag with the name 'addr', a default value of ":4000"
-	// and some short help text explaining what the flag controls. The value of the
-	// flag will be stored in the addr variable at runtime.
+func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	flag.Parse()
-
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-
-	mux := http.NewServeMux()
-
-	fileServer := http.FileServer(http.Dir("./ui/static"))
-	fmt.Println(fileServer)
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
-	mux.HandleFunc("/google.com/", snippetCreate)
-
+	errorLog := log.New(os.Stderr, "ERROR\t",
+		log.Ldate|log.Ltime|log.Lshortfile)
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
-		Handler:  mux,
+		// Call the new app.routes() method to get the servemux containing our routes.
+		Handler: app.routes(),
 	}
-
-	infoLog.Printf("Starting server on port %s", *addr)
+	infoLog.Printf("Starting server on %s", *addr)
 	err := srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
