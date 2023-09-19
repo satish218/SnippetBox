@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\cmd",
+    "\\cmd\\web",
+    "\\internal",
+    "\\ui",
+    "\\ui\\html",
+    "\\ui\\static",
+    "\\ui\\static\\img"
+  ],
+  "SelectedNode": "\\ui\\static\\img\\logo.png",
+  "PreviewInSolutionExplorer": false
+}
