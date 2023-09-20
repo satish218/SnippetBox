@@ -15,9 +15,6 @@ type application struct {
 	infoLog  *log.Logger
 }
 
-// adding comment before main to check test and sync
-// adding another comment and 
-
 func main() {
 
 	addr := flag.String("addr", ":4000", "HTTP network address")
