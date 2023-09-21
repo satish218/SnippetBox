@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"text/template"
-
 	"github.com/satish218/sinppetbox/internal/models"
 )
 
@@ -24,31 +22,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/pages/home.tmpl",
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		// app.errorLog.Print(err.Error())
-		// http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	// Create an instance of a templateData struct holding the slice of
-	// snippets.
-	data := &templateData{Snippets: snippets}
-
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-		// app.errorLog.Print(err.Error())
-		// http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	w.Write([]byte("hello from snippet box"))
+	app.render(w, http.StatusOK, "home.tmpl", &templateData{
+		Snippets: snippets,
+	})
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -70,32 +46,10 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	// Initialize a slice containing the paths to the view.tmpl file,
-	// plus the base layout and navigation partial that we made earlier.
-
-	files := []string{
-		"./ui/html/pages/view.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/base.tmpl",
-	}
-
-	// Parse the template files...
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-	}
-	// Create an instance of a templateData struct holding the snippet data.
-	data := &templateData{
+	// Use the new render helper.
+	app.render(w, http.StatusOK, "view.tmpl", &templateData{
 		Snippet: snippet,
-	}
-	// And then execute them. Notice how we are passing in the snippet
-	// data (a models.Snippet struct) as the final parameter?
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-	}
-	// Write the snippet data as a plain-text HTTP response body.
-	//fmt.Fprintf(w, "%+v", snippet)
+	})
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
